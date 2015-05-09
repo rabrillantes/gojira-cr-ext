@@ -1,0 +1,22 @@
+{
+  "manifest_version": 2,
+
+  "name": "JIRA keys",
+  "description": "Custom keybindings for JIRA",
+  "version": "1.0",
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://external.skyscanner.co.uk/jira/browse/*"],
+      "js": ["jira.js"]
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "https://external.skyscanner.co.uk/*",
+    "http://seagull.corp.skyscanner.local/*"
+  ]
+}
