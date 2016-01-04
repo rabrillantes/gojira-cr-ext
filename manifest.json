@@ -10,13 +10,13 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://external.skyscanner.co.uk/jira/browse/*"],
+      "matches": ["https://gojira.skyscanner.net/browse/*"],
       "js": ["jira.js"]
     }
   ],
   "permissions": [
     "activeTab",
-    "https://external.skyscanner.co.uk/*",
+    "https://gojira.skyscanner.net/*",
     "http://seagull.corp.skyscanner.local/*"
   ]
 }
