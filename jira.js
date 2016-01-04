@@ -25,6 +25,19 @@ function delayed_click(args) {
     }
 }
 
+function select_option(selector, text) {
+    var select = document.querySelector(selector);
+    var options = select.children;
+    select.value = text;
+    for (var i = 0; i < options.length; i++) {
+        var e = options[i];
+        e.selected = false;
+        if (e.innerText.trim() == text) {
+            e.selected = true;
+        }
+    }
+}
+
 
 // Injects script on the actual JIRA page to inteact with it
 // Use AJS (atlassian javascript) library on page to bind hotkeys
@@ -34,6 +47,9 @@ inject(function() {
     });
     AJS.whenIType('`u').execute(function() {
         window.postMessage({type: 'JIRAKEY', action: 'unassign'}, '*');
+    });
+    AJS.whenIType('`r').execute(function() {
+        window.postMessage({type: 'JIRAKEY', action: 'dev'}, '*');
     });
     AJS.whenIType('`a').execute(function() {
         window.postMessage({type: 'JIRAKEY', action: 'analysis'}, '*');
@@ -48,7 +64,7 @@ inject(function() {
         window.postMessage({type: 'JIRAKEY', action: 'squad'}, '*');
     });
     AJS.whenIType('`d').execute(function() {
-        window.postMessage({type: 'JIRAKEY', action: 'dev'}, '*');
+        window.postMessage({type: 'JIRAKEY', action: 'done'}, '*');
     });
 });
 
@@ -72,7 +88,14 @@ function toggle_watch() {
 
 function unassign() {
     if (document.querySelector('#assignee-val').innerText.trim() != 'Unassigned') {
-        delayed_click(['#assignee-val', '#assignee-val .drop-menu', 'a[title="Unassigned"]', '#assignee-form button[type="submit"]']);
+        click('#assignee-val');
+        setTimeout(function() {
+            click('#assignee-val .drop-menu');
+            document.querySelector('#assignee-suggestions li.active').classList.remove("active");
+            document.querySelector('a[title="Unassigned"]').parentNode.classList.add("active");
+            document.querySelector('a[title="Unassigned"]').click();
+            click('#assignee-val button[type="submit"]');
+        }, 500);
     }
 }
 
@@ -124,14 +147,8 @@ conn.onMessage.addListener(function(msg) {
 });
 
 function assign_squad(squad_name) {
-    var options = document.querySelectorAll('#customfield_11100-val option');
-    for (var i = 0; i < options.length; i++) {
-        var e = options[i];
-        if (e.innerText == squad_name) {
-            e.selected = true;
-            click('#customfield_11100-val button[type="submit"]');
-        }
-    }
+    select_option('#customfield_11100', squad_name);
+    click('#customfield_11100-val button[type="submit"]');
 }
 
 function to_dev() {
@@ -147,6 +164,14 @@ function to_dev() {
     }
 }
 
+function to_done() {
+    workflow('Done');
+    setTimeout(function() {
+        select_option('#resolution', 'Done');
+        click('#issue-workflow-transition-submit');
+    }, 2000);
+}
+
 // Map the content script functions to the names we will use to call them
 var actions = {
     'watch': toggle_watch,
@@ -155,7 +180,8 @@ var actions = {
     'work': work_on,
     'test': to_test,
     'squad': get_squad,
-    'dev': to_dev
+    'dev': to_dev,
+    'done': to_done
 }
 
 // Listen and respond to the window.postMessage by calling the above mapped functions
