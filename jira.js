@@ -88,14 +88,13 @@ function toggle_watch() {
 
 function unassign() {
     if (document.querySelector('#assignee-val').innerText.trim() != 'Unassigned') {
-        click('#assignee-val');
+        delayed_click(['#assignee-val', '#assignee-val .drop-menu']);
         setTimeout(function() {
-            click('#assignee-val .drop-menu');
             document.querySelector('#assignee-suggestions li.active').classList.remove("active");
-            document.querySelector('a[title="Unassigned"]').parentNode.classList.add("active");
-            document.querySelector('a[title="Unassigned"]').click();
+            document.querySelector('li[id^="unassigned"]').classList.add("active");
+            document.querySelector('li[id^="unassigned"]').click();
             click('#assignee-val button[type="submit"]');
-        }, 500);
+        }, 2000);
     }
 }
 
